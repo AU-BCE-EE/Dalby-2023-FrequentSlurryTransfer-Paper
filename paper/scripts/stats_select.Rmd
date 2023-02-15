@@ -1,0 +1,82 @@
+---
+title: "Comparison of treatments - CH4, NH3, CO2 with select approaches only"
+author: "Sasha D. Hafner and Frederik Dalby"
+output: pdf_document
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+---
+
+# Purpose
+Compare different slurry handling systems in terms of methane emission.
+
+# Prep
+```{r}
+rm(list = ls())
+
+source('../functions/rbindf.R')
+source('../functions/dfcombos.R')
+source('../functions/ggsave2x.R')
+
+library('DescTools')
+library('dplyr')
+library('tidyr')
+library('readxl')
+library('multcomp')
+library('ggplot2')
+library('FSA')
+
+sessionInfo()
+```
+
+# Measurement data
+Get stacked data with high-resolution measurements.
+Calculate mean emission rate by period.
+
+```{r}
+dat <- read.csv('../data/dat_stacked.csv')
+
+emis_dat <- summarise(group_by(dat, period, treatment), 
+                      mean_CH4_barn = mean(CH4_rate/pigs, na.rm = T), 
+                      mean_CH4_slurry = mean(CH4_emis_rate/pigs, na.rm = T), 
+                      mean_NH3_barn = mean(NH3_emis_rate/pigs, na.rm = T), 
+                      mean_CO2_barn = mean(CO2E, na.rm = T), 
+                      mean_CO2_slurry = mean(CO2_emis_rate, na.rm = T))
+
+emis_dat$treatment <- factor(emis_dat$treatment)
+```
+
+# Analysis
+Loop through all variables, fit models, print results.
+Crude and a lot of pages. . .
+
+```{r}
+for (y in c('mean_CH4_barn', 'mean_CH4_slurry', 'mean_NH3_barn', 'mean_CO2_barn', 'mean_CO2_slurry')) {
+  cat('\n')
+  cat('\n', rep(c(y, '\n'), 4), '\n')
+  cat('\n')
+
+  emis_dat$y <- emis_dat[, y, drop = TRUE]
+
+  m2 <- aov(log10(y) ~ factor(period) + treatment, data = emis_dat)
+  d2 <- glht(m2, linfct = mcp(treatment = "Dunnett"))
+
+  cat('Transformed aov summary:\n')
+  print(summary(m2))
+  cat('\n', rep(c(y, '\n'), 4), '\n')
+  cat('Transformed lm summary:\n')
+  print(summary.lm(m2))
+  cat('\n', rep(c(y, '\n'), 4), '\n')
+  cat('Transformed Dunnetts test:\n')
+  print(summary(d2))
+  cat('\n', rep(c(y, '\n'), 4), '\n')
+  cat('Transformed confidence intervals:\n')
+  print(100 * (10^confint(m2) - 1))
+
+  cat('\n', rep(c(y, '\n'), 4), '\n')
+  cat('Transformed relative reduction (coef):\n')
+  print(round(100 * (10^coef(m2)[-1:-2] - 1), 1))
+
+  cat('\n\n')
+  cat('\n', rep(paste('end', y), 3), '\n')
+  cat('\n')
+
+}

@@ -1,0 +1,145 @@
+---
+title: "Comparison of treatments - CH4, NH3, CO2"
+author: "Sasha D. Hafner and Frederik Dalby"
+output: pdf_document
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+---
+
+# Purpose
+Compare different slurry handling systems in terms of methane emission.
+
+# Prep
+```{r}
+rm(list = ls())
+
+source('../functions/rbindf.R')
+source('../functions/dfcombos.R')
+source('../functions/ggsave2x.R')
+
+library('DescTools')
+library('dplyr')
+library('tidyr')
+library('readxl')
+library('multcomp')
+library('ggplot2')
+library('FSA')
+```
+
+# Measurement data
+Get stacked data with high-resolution measurements.
+Calculate mean emission rate by period.
+
+```{r}
+dat <- read.csv('../data/dat_stacked.csv')
+
+emis_dat <- summarise(group_by(dat, period, treatment), 
+                      mean_CH4_barn = mean(CH4_rate/pigs, na.rm = T), 
+                      mean_CH4_slurry = mean(CH4_emis_rate/pigs, na.rm = T), 
+                      mean_NH3_barn = mean(NH3_emis_rate/pigs, na.rm = T), 
+                      mean_CO2_barn = mean(CO2E, na.rm = T), 
+                      mean_CO2_slurry = mean(CO2_emis_rate, na.rm = T))
+
+emis_dat$treatment <- factor(emis_dat$treatment)
+```
+
+# Analysis
+Loop through all variables, fit models, print results.
+Crude and a lot of pages. . .
+
+```{r}
+for (y in c('mean_CH4_barn', 'mean_CH4_slurry', 'mean_NH3_barn', 'mean_CO2_barn', 'mean_CO2_slurry')) {
+  cat('\n')
+  cat('\n', rep(c(y, '\n'), 4), '\n')
+  cat('\n', rep(c(y, '\n'), 4), '\n')
+  cat('\n', rep(c(y, '\n'), 4), '\n')
+  cat('\n')
+
+  emis_dat$y <- emis_dat[, y, drop = TRUE]
+
+  p1 <- ggplot(emis_dat, aes(period, y, colour = treatment)) +
+    geom_line() +
+    labs(y = y)
+  
+  p2 <- ggplot(emis_dat, aes(treatment, y)) +
+    geom_boxplot()
+
+  print(p1)
+  print(p2)
+  
+  m1 <- aov(y ~ factor(period) + treatment, data = emis_dat)
+  d1 <- glht(m1, linfct = mcp(treatment = "Dunnett"))
+
+  m2 <- aov(log10(y) ~ factor(period) + treatment, data = emis_dat)
+  d2 <- glht(m2, linfct = mcp(treatment = "Dunnett"))
+
+  m3 <- aov(log10(y) ~ treatment, data = emis_dat)
+  d3 <- glht(m3, linfct = mcp(treatment = "Dunnett"))
+
+  cat('\n', rep(c(y, '\n'), 4), '\n')
+  cat('Non-transformed aov summary:\n')
+  print(summary(m1))
+  cat('\n', rep(c(y, '\n'), 4), '\n')
+  cat('Non-transformed lm summary:\n')
+  print(summary.lm(m1))
+  cat('\n', rep(c(y, '\n'), 4), '\n')
+  cat('Non-transformed Dunnett s test:\n')
+  print(summary(d1))
+  cat('\n', rep(c(y, '\n'), 4), '\n')
+  cat('Non-transformed confidence intervals:\n')
+  print(confint(m1))
+
+  cat('\n', rep(c(y, '\n'), 4), '\n')
+  cat('Transformed aov summary:\n')
+  print(summary(m2))
+  cat('\n', rep(c(y, '\n'), 4), '\n')
+  cat('Transformed lm summary:\n')
+  print(summary.lm(m2))
+  cat('\n', rep(c(y, '\n'), 4), '\n')
+  cat('Transformed Dunnetts test:\n')
+  print(summary(d2))
+  cat('\n', rep(c(y, '\n'), 4), '\n')
+  cat('Transformed confidence intervals:\n')
+  print(100 * (10^confint(m2) - 1))
+
+  cat('\n', rep(c(y, '\n'), 4), '\n')
+  cat('Transformed aov summary without period:\n')
+  print(summary(m3))
+  cat('\n', rep(c(y, '\n'), 4), '\n')
+  cat('Transformed lm summary without period:\n')
+  print(summary.lm(m3))
+  cat('\n', rep(c(y, '\n'), 4), '\n')
+  cat('Transformed Dunnetts test without period:\n')
+  print(summary(d3))
+  cat('\n', rep(c(y, '\n'), 4), '\n')
+  cat('Transformed confidence intervals without period:\n')
+  print(100 * (10^confint(m3) - 1))
+
+  cat('\n', rep(c(y, '\n'), 4), '\n')
+  cat('Transformed relative reduction (coef):\n')
+  print(round(100 * (10^coef(m2)[-1:-2] - 1), 1))
+
+  cat('\n', rep(c(y, '\n'), 4), '\n')
+  cat('Transformed relative reduction without period (coef):\n')
+  print(round(100 * (10^coef(m3)[-1] - 1), 1))
+   
+  cat('\n', rep(c(y, '\n'), 4), '\n')
+  cat('Non-transformed diagnostic plots:\n')
+  plot(m1, ask = FALSE)
+
+  cat('\n', rep(c(y, '\n'), 4), '\n')
+  cat('Transformed diagnostic plots:\n')
+  plot(m2, ask = FALSE)
+
+  cat('\n', rep(c(y, '\n'), 4), '\n')
+  cat('Transformed diagnostic plots without period:\n')
+  plot(m3, ask = FALSE)
+
+
+  cat('\n', rep(c(y, '\n'), 4), '\n')
+  cat('\n\n')
+  cat('\n', rep(paste('end', y), 3), '\n')
+  cat('\n', rep(paste('end', y), 3), '\n')
+  cat('\n', rep(paste('end', y), 3), '\n')
+  cat('\n')
+
+}
