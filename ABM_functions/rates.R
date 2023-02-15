@@ -128,7 +128,7 @@ rates <- function(t, y, parms, temp_C_fun = temp_C_fun, temp_air_C_fun = temp_ai
     # Hard-wire NH4+ activity coefficient
     g_NH4 <- 0.7
     
-    # Hydrolysis rate with Arrhenius function or CTM
+    # Hydrolysis rate with CTM
     alpha <- scale['alpha_opt'] * CTM(temp_K, alpha_T_opt, alpha_T_min, alpha_T_max, alpha_opt)
 
     # Microbial substrate utilization rate (vectorized calculation)

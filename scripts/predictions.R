@@ -2,7 +2,7 @@
 
 rm(list = ls())
 
-path_fun <- '../../ABM_functions/'
+path_fun <- '../ABM_functions/'
 ff <- list.files(path = path_fun) 
 ff <- ff[ff != 'x.R']
 for (i in ff) source(paste0(path_fun,i))
@@ -110,15 +110,14 @@ grp_pars = list(grps = c('m0','m1','m2', 'sr1'),
 mic_pars = list(ks_SO4 = 0.0067,
                 ki_H2S_meth = 0.23,
                 ki_H2S_sr = 0.25,
-                alpha_opt = c(xa_dead= 0.02, starch = 0.2, CF = 0.02, CP = 0.02, urea = 70, RFd = 0.02, iNDF = 0, VSd = 0.02),
-                alpha_T_min = c(xa_dead= 0, starch = 0, CF = 0, CP = 0, urea = 0, RFd = 0, iNDF = 0, VSd = 0),
-                alpha_T_opt = c(xa_dead= 50, starch = 50, CF = 50, CP = 50, urea = 50, RFd = 50, iNDF = 50, VSd = 50),
-                alpha_T_max = c(xa_dead= 60, starch = 60, CF = 60, CP = 60, urea = 60, RFd = 60, iNDF = 60, VSd = 60))
+                alpha_opt = c(xa_dead= 0.02, urea = 70, VSd = 0.02),
+                alpha_T_min = c(xa_dead= 0, urea = 0, VSd = 0),
+                alpha_T_opt = c(xa_dead= 50, urea = 50, VSd = 50),
+                alpha_T_max = c(xa_dead= 60, urea = 60, VSd = 60))
 
-chem_pars = list(COD_conv = c(CH4 = 0.2507, xa_dead = 0.73, RFd = 0.84, iNDF = 0.65, starch = 0.85, 
-                              CF = 0.35, CP = 0.65, VFA = 0.93, S = 0.5015, VS = 0.69, CO2_anaer = 0.53, CO2_aer = 1.1, CO2_sr = 1.2, CO2_ureo = 1.57,
-                              N_CP = 0.1014, C_xa_dead = 0.358, C_RFd = 0.376, C_iNDF = 0.358
-                              , C_starch = 0.377, C_CF = 0.265, C_CP = 0.359 , C_VFA = 0.374, C_VSd = 0.344, C_N_urea = 0.429), 
+chem_pars = list(COD_conv = c(CH4 = 0.2507, xa_dead = 0.73, 
+                              VFA = 0.93, S = 0.5015, VS = 0.69, CO2_anaer = 0.53, CO2_aer = 1.1, CO2_sr = 1.2, CO2_ureo = 1.57,
+                              C_xa_dead = 0.358, C_VFA = 0.374, C_VSd = 0.344, C_N_urea = 0.429), 
                  kl = c(NH3 = 52, NH3_floor = 22, H2S = 0.02)) 
 
 # parm variation in alpha_opt and qhat_opt
@@ -137,7 +136,7 @@ pred_ST_all <- NULL
 
 # first we need to run the barn simulation, but with specific output times, so we can record the effluents to the storage
 
-for (i in c(6)){
+for (i in 1:nrow(pars_test)){
   
   # C parms
   
@@ -161,8 +160,8 @@ for (i in c(6)){
                               xa_fresh = opt_pars$scale.xa_fresh, yield = 1, 
                               alpha_opt = pars_test[i, 'alpha_opt'] * opt_pars$scale.alpha_opt))
   
-  man_pars_C = list(conc_fresh = list(S2 = 0.01, urea = 2.4, SO4 = 0.2, TAN = 0.63, starch = 0, 
-                                      VFA = 2.83, xa_dead = 0, CF = 0, CP = 0, RFd = 0, iNDF = 15, VSd = 73.8, VSd_A = 44.4), pH = 6.88, dens = 1000)
+  man_pars_C = list(conc_fresh = list(S2 = 0.01, urea = 2.4, SO4 = 0.2, TAN = 0.63, 
+                                      VFA = 2.83, xa_dead = 0, VSd = 73.8), pH = 6.88, dens = 1000)
   
   # FF parms
   
@@ -186,8 +185,8 @@ for (i in c(6)){
                                xa_fresh = opt_pars$scale.xa_fresh, yield = 1, 
                                alpha_opt = pars_test[i, 'alpha_opt'] * opt_pars$scale.alpha_opt))
   
-  man_pars_FF = list(conc_fresh = list(S2 = 0.01, urea = 2.4, SO4 = 0.2, TAN = 0.63, starch = 0, 
-                                       VFA = 2.83, xa_dead = 0, CF = 0, CP = 0, RFd = 0, iNDF = 15, VSd = 73.8, VSd_A = 44.4), pH = 6.82, dens = 1000)
+  man_pars_FF = list(conc_fresh = list(S2 = 0.01, urea = 2.4, SO4 = 0.2, TAN = 0.63,
+                                       VFA = 2.83, xa_dead = 0, VSd = 73.8), pH = 6.82, dens = 1000)
   
   # SF parms
   
@@ -211,8 +210,8 @@ for (i in c(6)){
                                xa_fresh = opt_pars$scale.xa_fresh, yield = 1, 
                                alpha_opt = pars_test[i, 'alpha_opt'] * opt_pars$scale.alpha_opt))
   
-  man_pars_SF = list(conc_fresh = list(S2 = 0.01, urea = 2.4, SO4 = 0.2, TAN = 0.63, starch = 0, 
-                                       VFA = 2.83, xa_dead = 0, CF = 0, CP = 0, RFd = 0, iNDF = 15, VSd = 73.8, VSd_A = 44.4), pH = 6.75, dens = 1000)
+  man_pars_SF = list(conc_fresh = list(S2 = 0.01, urea = 2.4, SO4 = 0.2, TAN = 0.63, 
+                                       VFA = 2.83, xa_dead = 0, VSd = 73.8), pH = 6.75, dens = 1000)
   # ST parms
   
   mng_pars_ST = list(slurry_prod_rate = 0,  
@@ -235,8 +234,8 @@ for (i in c(6)){
                                xa_fresh = opt_pars$scale.xa_fresh, yield = 1, 
                                alpha_opt = pars_test[i, 'alpha_opt'] * opt_pars$scale.alpha_opt))
   
-  man_pars_ST = list(conc_fresh = list(S2 = 0.01, urea = 2.4, SO4 = 0.2, TAN = 0.63, starch = 0, 
-                                       VFA = 2.83, xa_dead = 0, CF = 0, CP = 0, RFd = 0, iNDF = 15, VSd = 73.8, VSd_A = 44.4), pH = 6.83, dens = 1000)
+  man_pars_ST = list(conc_fresh = list(S2 = 0.01, urea = 2.4, SO4 = 0.2, TAN = 0.63,
+                                       VFA = 2.83, xa_dead = 0, VSd = 73.8), pH = 6.83, dens = 1000)
   
   
   # C
@@ -288,24 +287,49 @@ for (i in c(6)){
 
 pred_barn <- rbind(pred_C_all, pred_FF_all, pred_SF_all, pred_ST_all) 
 
+summary_barn <-  summarise(group_by(pred_barn[which(pred_barn$time == round(pred_barn$time)),], i, treat), CH4_emis_rate = mean(CH4_emis_rate, na.rm = T)) %>%
+  ungroup()  %>%  mutate(alpha_opt = rep(pars_test$alpha_opt, each = 4), qhat_opt = rep(pars_test$qhat_opt, each = 4)) %>% 
+  pivot_wider(names_from = treat, values_from = CH4_emis_rate) %>% select(-i)
+
+write.csv(summary_barn, '../data/summary_barn.csv', row.names = F)
+
+summary_barn_parms <- summarise(group_by(pred_barn, treat, i), time = max(time), slurry_mass_eff = sum(slurry_mass_eff), slurry_mass_sum = sum(slurry_prod_rate, na.rm = T), 
+                                slurry_mass_mean = mean(slurry_mass, na.rm = T), slurry_prod_rate_sum = sum(slurry_prod_rate), xa_fresh_m0 = mean(xa_fresh_m0, na.rm = T), xa_fresh_m1 = mean(xa_fresh_m1, na.rm = T),
+                                   conc_fresh_VSd = mean(conc_fresh_VSd, na.rm = T), cum_inhib_meth_m0 = mean(cum_inhib_meth_m0, na.rm = T), 
+                                   H2S_inhib_meth = mean(H2S_inhib_meth, na.rm = T), HAC_inhib = mean(HAC_inhib, na.rm = T), rut_m0 = mean(rut_m0), rut_m1 = mean(rut_m1),
+                                   conc_fresh_S2 = mean(conc_fresh_S2), conc_fresh_SO4 = mean(conc_fresh_SO4)) %>% ungroup() %>%
+  pivot_longer(c('time', 'slurry_mass_eff', 'slurry_prod_rate_sum', 'slurry_mass_sum', 'slurry_mass_mean', 'rut_m0', 'rut_m1', 'conc_fresh_S2', 'conc_fresh_SO4', 'xa_fresh_m0', 'xa_fresh_m1', 'conc_fresh_VSd', 'cum_inhib_meth_m0', 'H2S_inhib_meth', 'HAC_inhib'), names_to = 'parm', values_to = 'scores') %>% filter(i == 7)
+
+write.csv(summary_barn_parms, '../data/summary_barn_parms.csv', row.names = F)
+
 pred_barn <- pred_barn %>% select(c(treat, time, slurry_mass_eff, names(pred_barn)[grepl("m[0-9]_eff_conc|sr[0-9]_eff_conc|_eff_conc", names(pred_barn))]))
 
-dat <- pred_barn
+write.csv(pred_barn, '../data/pred_barn.csv', row.names = FALSE)
+
+dat <- read.csv('../data/pred_barn.csv')
 
 # prepare for making storage simulation, from the dat created above.
 
 pred_all <- NULL
 
+
 for (o in c('C', 'FF', 'SF', 'ST')){
   
   dat_sim <- dat[dat$treat == o,]
+  
+  # time_rows for each alpha_opt and qhat_opt parameter set
+  
+  end_rows <- c(which(diff(dat_sim$time) < 0), nrow(dat_sim))
+  start_rows <- end_rows - end_rows[1] + 1
+  time_rows <- data.frame(rbind(start_rows, end_rows))
+  
   pred_treat <- NULL
 
-  for (i in 1:nrow(pars_test)){
+  for (i in 1:ncol(time_rows)) {
     
     # slurry mass handled and prepared for input
     days <- 365 * 3
-    storage_dat <- dat_sim
+    storage_dat <- dat_sim[time_rows[1,i]: time_rows[2,i],]
     rem.rows <- which(diff(storage_dat$slurry_mass_eff) < 0) 
     times <- c(storage_dat$time[rem.rows], storage_dat$time[rem.rows] + (max(storage_dat$time[rem.rows]) + 6), 
                storage_dat$time[rem.rows] + 2 * (max(storage_dat$time[rem.rows])+6), 
@@ -315,7 +339,7 @@ for (o in c('C', 'FF', 'SF', 'ST')){
     mass <- c(rep(storage_dat$slurry_mass_eff[rem.rows], 5))
     slurry_mass_dat <- data.frame(time = times, slurry_mass = cumsum(mass))
     slurry_mass_dat <- setNames(data.frame(approx(slurry_mass_dat$time, slurry_mass_dat$slurry_mass, xout = 1:days, method = 'constant')), c('time', 'slurry_mass'))
-    slurry_mass_dat <- slurry_app(days = days, start = 'June', stor_dat = data.frame(app1s = 0.1, app2s = 1, app_t1s = 'September', app_t2s = 'March'), from = 'storage', slurry = slurry_mass_dat)
+    slurry_mass_dat <- slurry_app(days = days, begin = 'June', specs = data.frame(app1s = 0.1, app2s = 1, app_t1s = 'September', app_t2s = 'March'), from = 'storage', slurry = slurry_mass_dat)
     slurry_mass_dat$slurry_mass[is.na(slurry_mass_dat$slurry_mass)] <- 0
     
     # get concentrations of microbial populations in the slurry excreted to the storage
@@ -325,10 +349,9 @@ for (o in c('C', 'FF', 'SF', 'ST')){
     # get concentrations of substrates in the slurry excreted to the storage
     conc_fresh <- list(S2 = mean(storage_dat[rem.rows, "sulfide_eff_conc"]), urea = mean(storage_dat[rem.rows, "urea_eff_conc"]), 
                        SO4 = mean(storage_dat[rem.rows, "sulfate_eff_conc"]), TAN = mean(storage_dat[rem.rows, "TAN_eff_conc"]),
-                       starch = mean(storage_dat[rem.rows, "starch_eff_conc"]), VFA = mean(storage_dat[rem.rows, "VFA_eff_conc"]), 
-                       xa_dead = mean(storage_dat[rem.rows, "xa_dead_eff_conc"]), CF = mean(storage_dat[rem.rows, "CF_eff_conc"]), 
-                       CP = mean(storage_dat[rem.rows, "CP_eff_conc"]), RFd = mean(storage_dat[rem.rows, "RFd_eff_conc"]), 
-                       iNDF = mean(storage_dat[rem.rows, "iNDF_eff_conc"]), VSd = mean(storage_dat[rem.rows, "VSd_eff_conc"]), 
+                       VFA = mean(storage_dat[rem.rows, "VFA_eff_conc"]), 
+                       xa_dead = mean(storage_dat[rem.rows, "xa_dead_eff_conc"]),  
+                       VSd = mean(storage_dat[rem.rows, "VSd_eff_conc"]), 
                        VSd_A = mean(storage_dat[rem.rows, 'VSd_A_eff_conc'])) 
     
 
@@ -393,7 +416,7 @@ summary_storage <-  summarise(group_by(pred_all, treat, i), CH4_emis_rate = mean
   pivot_wider(names_from = treat, values_from = CH4_emis_rate) %>% select(-i)
 
 
-write.csv(summary_storage, '../data/summary_storageVar.csv', row.names = F)
+write.csv(summary_storage, '../data/summary_storage.csv', row.names = F)
 
 summary_storage_parms <- summarise(group_by(pred_all, treat, i), slurry_mass_sum = sum(slurry_prod_rate, na.rm = T), slurry_mass_mean = mean(slurry_mass, na.rm = T), xa_fresh_m0 = mean(xa_fresh_m0, na.rm = T), xa_fresh_m1 = mean(xa_fresh_m1, na.rm = T),
                                    conc_fresh_VSd = mean(conc_fresh_VSd, na.rm = T), cum_inhib_meth_m0 = mean(cum_inhib_meth_m0, na.rm = T), 
@@ -401,4 +424,4 @@ summary_storage_parms <- summarise(group_by(pred_all, treat, i), slurry_mass_sum
                                    conc_fresh_S2 = mean(conc_fresh_S2), conc_fresh_SO4 = mean(conc_fresh_SO4)) %>% ungroup() %>%
                                    pivot_longer(c('slurry_mass_sum', 'slurry_mass_mean', 'rut_m0', 'rut_m1', 'conc_fresh_S2', 'conc_fresh_SO4', 'xa_fresh_m0', 'xa_fresh_m1', 'conc_fresh_VSd', 'cum_inhib_meth_m0', 'H2S_inhib_meth', 'HAC_inhib'), names_to = 'parm', values_to = 'scores') %>% filter(i == 7)
 
-write.csv(summary_storage_parms, '../data/summary_storageVar_parms.csv')
+write.csv(summary_storage_parms, '../data/summary_storage_parms.csv')

@@ -2,7 +2,7 @@
 
 rm(list = ls())
 
-path_fun <- '../../ABM_functions/'
+path_fun <- '../ABM_functions/'
 ff <- list.files(path = path_fun) 
 ff <- ff[ff != 'x.R']
 for (i in ff) source(paste0(path_fun,i))
@@ -15,9 +15,6 @@ library('lubridate')
 library('dplyr')
 library('tidyr')
 library('openxlsx')
-library('Rcpp')
-
-sourceCpp('../../C++/CTM_cpp.cpp')
 
 meas_C <- as.data.frame(read_excel("../data/dat_simple.xlsx", sheet = "C"))
 
@@ -43,15 +40,14 @@ grz_pars = list(graze_start = "may",
 mic_pars = list(ks_SO4 = 0.0067,
                 ki_H2S_meth = 0.23,
                 ki_H2S_sr = 0.25,
-                alpha_opt = c(xa_dead= 0.02, starch = 0.2, CF = 0.02, CP = 0.02, urea = 70, NDF = 0.02, iNDF = 0, VSd = 0.02),
-                alpha_T_min = c(xa_dead= 0, starch = 0, CF = 0, CP = 0, urea = 0, NDF = 0, iNDF = 0, VSd = 0),
-                alpha_T_opt = c(xa_dead= 50, starch = 50, CF = 50, CP = 50, urea = 50, NDF = 50, iNDF = 50, VSd = 50),
-                alpha_T_max = c(xa_dead= 60, starch = 60, CF = 60, CP = 60, urea = 60, NDF = 60, iNDF = 60, VSd = 60))
+                alpha_opt = c(xa_dead= 0.02, urea = 70, VSd = 0.02),
+                alpha_T_min = c(xa_dead= 0, urea = 0, VSd = 0),
+                alpha_T_opt = c(xa_dead= 50, urea = 50, VSd = 50),
+                alpha_T_max = c(xa_dead= 60, urea = 60, VSd = 60))
 
-chem_pars = list(COD_conv = c(CH4 = 0.2507, xa_dead = 0.73, NDF = 0.84, iNDF = 0.65, starch = 0.85, 
-                              CF = 0.35, CP = 0.65, VFA = 0.93, S = 0.5015, VS = 0.69, CO2_anaer = 0.53, CO2_aer = 1.1, CO2_sr = 1.2, CO2_ureo = 1.57,
-                              N_CP = 0.1014, C_xa_dead = 0.358, C_NDF = 0.376, C_iNDF = 0.358
-                              , C_starch = 0.377, C_CF = 0.265, C_CP = 0.359 , C_VFA = 0.374, C_VSd = 0.344, C_N_urea = 0.429), 
+chem_pars = list(COD_conv = c(CH4 = 0.2507, xa_dead = 0.73,  
+                             VFA = 0.93, S = 0.5015, VS = 0.69, CO2_anaer = 0.53, CO2_aer = 1.1, CO2_sr = 1.2, CO2_ureo = 1.57,
+                             C_xa_dead = 0.358, C_VFA = 0.374, C_VSd = 0.344, C_N_urea = 0.429), 
                  kl = c(NH3 = 52, NH3_floor = 22, H2S = 0.02)) 
 # C parms
 # make parms data frame for looping through in sensitivity analysis
@@ -121,8 +117,8 @@ for (i in 1:nrow(pars_dat_all)){
                   pH_upr = c(all = 8.0),
                   pH_lwr = c(default = 6.0))
   
-  man_pars_C = list(conc_fresh = list(S2 = 0.01, urea = 2.4, SO4 = 0.2, TAN = 0.63, starch = 0, 
-                                      VFA = 2.83, xa_dead = 0, CF = 0, CP = 0, NDF = 0, iNDF = 15, VSd = 73.8, VSd_A = 44.4), pH = 6.88, dens = 1000)
+  man_pars_C = list(conc_fresh = list(S2 = 0.01, urea = 2.4, SO4 = 0.2, TAN = 0.63,
+                                      VFA = 2.83, xa_dead = 0, VSd = 73.8), pH = 6.88, dens = 1000)
   
  
   ################### adjust for optimizer and exclude period 4 ###################

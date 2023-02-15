@@ -56,9 +56,7 @@ summary_storage$ST <- summary_storage$ST/1000 * 365 / (sum_barn_eff_slurry$score
 #summary_storage$SF <- summary_storage$SF/1000 * 365 / mean_storage_slurry$scores[mean_storage_slurry$treat == 'SF']
 #summary_storage$ST <- summary_storage$ST/1000 * 365 / mean_storage_slurry$scores[mean_storage_slurry$treat == 'ST']
 
-
 summary_net <- cbind(summary_barn[, !names(summary_barn) %in% c('alpha_opt','qhat_opt')] + summary_storage[, !names(summary_storage) %in% c('alpha_opt','qhat_opt')], summary_barn[, c('alpha_opt', 'qhat_opt')])
-
 
 summary_dat <- rbind(cbind(summary_barn, source = 'Barn'), cbind(summary_storage, source = 'Storage'), cbind(summary_net, source = 'Net'))
 summary_dat$reduction_FF <- (1 - summary_dat$FF/summary_dat$C) * 100
@@ -109,7 +107,7 @@ refplot <- ggplot(ref, aes(x, C, colour = varied)) +
              scale_colour_manual(name = 'Parameter', values = cols, 
                                  labels = expression(q['max, opt'], alpha['opt'], 'Both')) +
              theme(legend.position = 'none')
-refplot
+
 dd <- subset(summary_dat_long, alpha_opt == 1 & qhat_opt == 1)
 redplot <- ggplot(summary_dat_long, aes(x, reduction, colour = varied)) + 
              geom_point(data = dd, colour = 'gray55', size = 2) + 
@@ -120,13 +118,12 @@ redplot <- ggplot(summary_dat_long, aes(x, reduction, colour = varied)) +
              theme(legend.position = 'right') +
              scale_colour_manual(name = 'Parameter', values = cols, 
                                  labels = expression(q['max, opt'], alpha['opt'], 'Both'))
-redplot
+
 refemisplot <- ggplot(ref_emis, aes(x = animal, y = CH4)) + geom_boxplot(varwidth = TRUE) + geom_jitter(width = 0.2) + theme_bw() + 
   labs(x ="", y = expression('Methane emission rate'~(g~pig^'-1'~d^'-1')), colour = "", tag = 'A') + 
   stat_summary(fun.y ="mean", color="red")
 
 p_all <- grid.arrange(refemisplot, refplot, redplot, widths = c(1.5,4), heights = c(2.5,4), layout_matrix = rbind(c(1), c(2,3)))
-
 
 svglite("../figures/fig_predict.svg", width = 18/2.54, height = 18/2.54)
 grid::grid.draw(p_all)
