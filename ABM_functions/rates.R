@@ -190,14 +190,14 @@ rates <- function(t, y, parms, temp_C_fun = temp_C_fun, temp_air_C_fun = temp_ai
     # Respiration gCOD/d, second-order reaction where kl applies for substrate concentration of 100 g COD / kg slurry
     
     kl.oxygen <- 0.0946 * temp_C ^ 1.2937 # from own lab experiments. 
-    #kl.oxygen <- 0
+    
     sub_respir <- VSd 
     if (sub_respir <= 0) sub_respir <- 1E-20
     respiration <- kl.oxygen * area * ((kH_oxygen * 0.208) - 0) * (sub_respir / slurry_mass) / 100 
 
-    #browser()
+
     rut <- NA * qhat
-    # old R code
+    
     # VFA consumption rate by sulfate reducers (g/d). Slow speed
     rut[i_sr] <- ((qhat[i_sr] * VFA / (slurry_mass) * xa[i_sr] / (slurry_mass) / (scale['ks_coefficient'] * ks[i_sr] + VFA / (slurry_mass))) * (slurry_mass) *
                     (sulfate / (slurry_mass)) / (ks_SO4 + sulfate / (slurry_mass))) * cum_inhib_sr[i_sr]
@@ -205,7 +205,7 @@ rates <- function(t, y, parms, temp_C_fun = temp_C_fun, temp_air_C_fun = temp_ai
     # Substrate utilization rate by methanogen groups in g/d affected by inhibition terms. Slow speed
     rut[i_meth] <- ((qhat[i_meth] * VFA / (slurry_mass) * xa[i_meth] / (slurry_mass)) / (scale['ks_coefficient'] * ks[i_meth] + VFA / (slurry_mass)) *
                       (slurry_mass)) * cum_inhib_meth[i_meth]
-    #stop('check ruts')
+   
     # Some checks for safety
     if (any(rut < 0)) stop('In rates() function rut < 0 or otherwise strange. Check qhat parameters (92gg7)')
 
