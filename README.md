@@ -25,4 +25,6 @@ Download the Dalby-2023-FrequentSlurryTransfer-Paper contents and open 'run/main
 
 'functions' folder contains functions for saving figures
 
-
+# Maintainer and contact information
+Frederik Rask dalby
+fd@bce.au.dk
