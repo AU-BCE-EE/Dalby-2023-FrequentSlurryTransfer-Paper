@@ -102,3 +102,15 @@ mass_summary <- dat_stacked %>% select(mass, period, treatment) %>% filter(!is.n
   summarise(mass_sd = sd(mass.mean, na.rm = TRUE), mass.mean = mean(mass.mean, na.rm = T))
 
 write.csv(mass_summary, '../output/slurry_mass_summary.csv', row.names = FALSE)
+
+
+N_balance <- read_excel('../data/sorted_data_average.xlsx', sheet = 'Balance_data')
+
+N.summary <- N_balance %>% 
+  mutate(ingested_N_pig_day = ingested_N*1000/days/pigs, excreted_N_pig_day = excreted_N*1000/days/pigs) %>%
+  group_by(treatment) %>% summarise(ingested_N_g_per_pig_day_mean = mean(ingested_N_pig_day), 
+                                    ingested_N_g_per_pig_day_sd = sd(ingested_N_pig_day),
+                                    excreted_N_g_per_pig_day_mean = mean(excreted_N_pig_day),
+                                    excreted_N_g_per_pig_day_sd = sd(excreted_N_pig_day))
+
+write.csv(N.summary, '../output/N_balance_summary.csv', row.names = FALSE)
