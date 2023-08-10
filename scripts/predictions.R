@@ -312,6 +312,7 @@ dat <- read.csv('../data/pred_barn.csv')
 
 pred_all <- NULL
 
+o <- 'ST'
 
 for (o in c('C', 'FF', 'SF', 'ST')){
   
@@ -425,3 +426,16 @@ summary_storage_parms <- summarise(group_by(pred_all, treat, i), slurry_mass_sum
                                    pivot_longer(c('slurry_mass_sum', 'slurry_mass_mean', 'rut_m0', 'rut_m1', 'conc_fresh_S2', 'conc_fresh_SO4', 'xa_fresh_m0', 'xa_fresh_m1', 'conc_fresh_VSd', 'cum_inhib_meth_m0', 'H2S_inhib_meth', 'HAC_inhib'), names_to = 'parm', values_to = 'scores') %>% filter(i == 7)
 
 write.csv(summary_storage_parms, '../data/summary_storage_parms.csv')
+
+control <- pred
+weekly <- pred
+slurryfunnels <- pred
+slurrytrays <- pred
+
+library(dplyr)
+library(tidyr)
+
+dat_bind <- bind_rows(control, weekly, slurryfunnels, slurrytrays) %>% select(time, slurry_mass, CH4_emis_rate, temp_C, treat)
+
+write.xlsx(dat_bind, 'dat_bind.xlsx')
+dat_bind$treat
