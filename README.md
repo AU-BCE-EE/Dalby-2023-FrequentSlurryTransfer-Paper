@@ -1,3 +1,6 @@
+# Correction to Table 2
+The ingested and excreted nitrogen in Table 2 are incorrect. Instead the true values can be found in "../output/N_balance_summary.csv"
+
 # Dalby-2023-FrequentSlurryTransfer-Paper
 Data, code and outputs from the paper: 
 
