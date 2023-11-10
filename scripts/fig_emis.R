@@ -85,10 +85,11 @@ x <- subset(dl, variable == 'Methane normalized' &
 y <- subset(x, date == max(date))
 
 ggplot(x, aes(date, emis.ave, colour = treatment)) +
-  geom_line() +
-  geom_label(data = y, aes(label = treatment)) +
+  geom_line(lwd = 1.0, alpha = 0.7) +
+  geom_label(data = y, aes(label = treatment), size = 2) +
   labs(x = 'Date', y = expression('Normalized'~CH[4]~'emission rate'~(g~kg^'-1'~d^'-1'))) +
-  theme(legend.position = 'none')
+  theme(legend.position = 'none') 
+ggsave('../figures/norm_CH4.png', height = 4, width = 8)
  
 ep <- ggplot(dl, aes(date, emis.ave, colour = treatment)) +
   geom_line(alpha = 0.5) +
