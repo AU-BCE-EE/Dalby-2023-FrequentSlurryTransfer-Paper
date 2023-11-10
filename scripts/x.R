@@ -206,7 +206,7 @@ meas_C$day <- ceiling(meas_C$days)
 dat_C <- as.data.frame(summarise(group_by(meas_C, day), CH4_emis_rate = mean(CH4_emis_rate, na.rm = TRUE), VFA_conc = mean(vfa / 1000 * 0.93, na.rm = TRUE)))
 dat_C <- dat_C[dat_C$day <= ceiling(days_sim), ] 
 times_C <- dat_C$day
-pred_C <- abm(days = max(times_C), times = times_C, man_pars = man_pars_C, mng_pars = mng_pars_C, grp_pars = grp_pars, evap_pars = evap_pars, wthr_pars = wthr_pars)[, c('time', 'CH4_emis_rate', 'VFA_conc')]
+pred_C <- abm(days = max(times_C), times = times_C, man_pars = man_pars_C, mng_pars = mng_pars_C, grp_pars = grp_pars, evap_pars = evap_pars, wthr_pars = wthr_pars)[, c('time', 'CH4_emis_rate', 'VFA_conc', 'slurry_mass')]
 
 # FF plot 
 days_sim <- max(meas_FF$days[meas_FF$period == 3], na.rm = T)
@@ -214,7 +214,7 @@ meas_FF$day <- ceiling(meas_FF$days)
 dat_FF <- as.data.frame(summarise(group_by(meas_FF, day), CH4_emis_rate = mean(CH4_emis_rate, na.rm = TRUE), VFA_conc = mean(vfa / 1000 * 0.93, na.rm = TRUE)))
 dat_FF <- dat_FF[dat_FF$day <= ceiling(days_sim), ] 
 times_FF <- dat_FF$day
-pred_FF <- abm(days = max(times_FF), times = times_FF, man_pars = man_pars_FF, mng_pars = mng_pars_FF, grp_pars = grp_pars, evap_pars = evap_pars, wthr_pars = wthr_pars)[, c('time', 'CH4_emis_rate', 'VFA_conc')]
+pred_FF <- abm(days = max(times_FF), times = times_FF, man_pars = man_pars_FF, mng_pars = mng_pars_FF, grp_pars = grp_pars, evap_pars = evap_pars, wthr_pars = wthr_pars)[, c('time', 'CH4_emis_rate', 'VFA_conc', 'slurry_mass')]
 
 # SF plot 
 days_sim <- max(meas_SF$days[meas_SF$period == 3], na.rm = T)
@@ -222,7 +222,7 @@ meas_SF$day <- ceiling(meas_SF$days)
 dat_SF <- as.data.frame(summarise(group_by(meas_SF, day), CH4_emis_rate = mean(CH4_emis_rate, na.rm = TRUE), VFA_conc = mean(vfa / 1000 * 0.93, na.rm = TRUE)))
 dat_SF <- dat_SF[dat_SF$day <= ceiling(days_sim), ] 
 times_SF <- dat_SF$day
-pred_SF <- abm(days = max(times_SF), times = times_SF, man_pars = man_pars_SF, mng_pars = mng_pars_SF, grp_pars = grp_pars, evap_pars = evap_pars, wthr_pars = wthr_pars)[, c('time', 'CH4_emis_rate', 'VFA_conc')]
+pred_SF <- abm(days = max(times_SF), times = times_SF, man_pars = man_pars_SF, mng_pars = mng_pars_SF, grp_pars = grp_pars, evap_pars = evap_pars, wthr_pars = wthr_pars)[, c('time', 'CH4_emis_rate', 'VFA_conc', 'slurry_mass')]
 
 # ST 
 days_sim <- max(meas_ST$days[meas_ST$period == 3], na.rm = T)
@@ -230,7 +230,7 @@ meas_ST$day <- ceiling(meas_ST$days)
 dat_ST <- as.data.frame(summarise(group_by(meas_ST, day), CH4_emis_rate = mean(CH4_emis_rate, na.rm = TRUE), VFA_conc = mean(vfa / 1000 * 0.93, na.rm = TRUE)))
 dat_ST <- dat_ST[dat_ST$day <= ceiling(days_sim), ] 
 times_ST <- dat_ST$day
-pred_ST <- abm(days = max(times_ST), times = times_ST, man_pars = man_pars_ST, mng_pars = mng_pars_ST, grp_pars = grp_pars, evap_pars = evap_pars, wthr_pars = wthr_pars)[, c('time', 'CH4_emis_rate', 'VFA_conc')]
+pred_ST <- abm(days = max(times_ST), times = times_ST, man_pars = man_pars_ST, mng_pars = mng_pars_ST, grp_pars = grp_pars, evap_pars = evap_pars, wthr_pars = wthr_pars)[, c('time', 'CH4_emis_rate', 'VFA_conc', 'slurry_mass')]
 
 pred_C$treat <- "Control (C)"
 pred_FF$treat <- "Weekly flushing (WF)"
@@ -252,7 +252,8 @@ dat_all <- rename(dat_all, time = day)
 dat_all$type <- "dat"
 
 dat_pred <- rbind(pred_all, dat_all)
-dat_pred_long <- pivot_longer(dat_pred, c(CH4_emis_rate, VFA_conc), names_to = 'compound', values_to = 'value')
+dat_pred$CH4_emis_rate_norm <- dat$CH4_emis_rate / dat$slurry_mass
+dat_pred_long <- pivot_longer(dat_pred, c(CH4_emis_rate, VFA_conc, CH4_emis_rate_norm), names_to = 'compound', values_to = 'value')
 dat_pred_long$type <- as.factor(dat_pred_long$type)
 
 vline <- as.numeric(difftime(c(per$date.in, per$date.out), min(per$date.in), units = 'days'))
@@ -296,18 +297,6 @@ sub_dat_VFA$treat <- factor(sub_dat_VFA$treat, levels = c('Control (C)' = 'Contr
                                                            'Slurry funnels (SF)' = 'Slurry funnels (SF)', 'Slurry trays (ST)' = 'Slurry trays (ST)'))
 sub_pred_VFA$treat <- factor(sub_pred_VFA$treat, levels = c('Control (C)' = 'Control (C)', 'Weekly flushing (WF)' = 'Weekly flushing (WF)', 
                                                            'Slurry funnels (SF)' = 'Slurry funnels (SF)', 'Slurry trays (ST)' = 'Slurry trays (ST)'))
-
-y <- mean(na.omit(subset(sub_dat_CH4, treat == 'Control (C)')$value))
-ggplot() + 
-  geom_hline(yintercept = y, colour = 'gray55') +
-  geom_point(data = sub_dat_CH4, aes(x = time, y = value), size = 0.4) + 
-  geom_line(data = sub_pred_CH4, aes(x = time, y = value), size = 0.4, color = 'red') +
-  facet_wrap(~ treat, scales = 'fixed') + 
-  theme(legend.position='none') + 
-  labs(x = 'Days', y = expression('Methane emission rate'~(g~d^'-1')), colour = '') + 
-  geom_vline(xintercept = vline, lty = 2, col = 'gray65')
-ggsave('../figures/valid_pres.png', height = 4, width = 8)
-
 
 p1 <- ggplot() + 
   geom_point(data = sub_dat_CH4, aes(x = time, y = value), size = 0.4) + 

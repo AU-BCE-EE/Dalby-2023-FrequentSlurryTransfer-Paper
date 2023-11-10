@@ -40,12 +40,16 @@ dat$NH3_emis_rate <- dat$NH3_emis_rate  / dat$pigs
 dat$H2S_emis_rate <- dat$H2S_emis_rate  / dat$pigs
 dat$CH4_emis_rate <- dat$CH4_emis_rate  / dat$pigs
 
+# Interpolate missing slurry mass
+source('interpm.R')
+dat <- interpm(dat, 'date', 'mass', by = 'treatment')
+dat$CH4_emis_rate_norm <- dat$CH4_emis_rate * dat$pigs / dat$mass
 # Reshape
 dl <- as.data.table(melt(dat, id.vars = c('treatment', 'date', 'date.time', 'doy', 'period', 'pigs'),
-           measure.vars = c('CH4_emis_rate', 'CO2_emis_rate', 'NH3_emis_rate', 'H2S_emis_rate')))
+           measure.vars = c('CH4_emis_rate', 'CH4_emis_rate_norm', 'CO2_emis_rate', 'NH3_emis_rate', 'H2S_emis_rate')))
 
-dl$variable <- factor(dl$variable, levels = c('CH4_emis_rate', 'CO2_emis_rate', 'NH3_emis_rate', 'H2S_emis_rate'),
-                      labels = c('Methane', 'Carbon dioxide', 'Ammonia', 'Hydrogen sulfide'))
+dl$variable <- factor(dl$variable, levels = c('CH4_emis_rate', 'CH4_emis_rate_norm', 'CO2_emis_rate', 'NH3_emis_rate', 'H2S_emis_rate'),
+                      labels = c('Methane', 'Methane normalized', 'Carbon dioxide', 'Ammonia', 'Hydrogen sulfide'))
 dl$treatment <- factor(dl$treatment, levels = c('control', 'frequentflushing', 'slurryfunnels', 'slurrytrays'),
                        labels = c('Control (C)', 'Weekly\nflushing (WF)\n', 'Slurry\nfunnels (SF)\n', 'Slurry\ntrays (ST)\n'))
 
@@ -75,7 +79,17 @@ dl <- rbindf(dl, expand.grid(date = c(per$date.in, per$date.out),
                              value = NA))
 
 dl <- dl[order(dl$variable, dl$date), ]
+x <- subset(dl, variable == 'Methane normalized' & 
+            date < as.POSIXct('2020 11 01', format = '%Y %m %d') &
+            date > as.POSIXct('2020 08 13', format = '%Y %m %d'))
+y <- subset(x, date == max(date))
 
+ggplot(x, aes(date, emis.ave, colour = treatment)) +
+  geom_line() +
+  geom_label(data = y, aes(label = treatment)) +
+  labs(x = 'Date', y = expression('Normalized'~CH[4]~'emission rate'~(g~kg^'-1'~d^'-1'))) +
+  theme(legend.position = 'none')
+ 
 ep <- ggplot(dl, aes(date, emis.ave, colour = treatment)) +
   geom_line(alpha = 0.5) +
   geom_point(alpha = 0.7, size = 0.3) +
